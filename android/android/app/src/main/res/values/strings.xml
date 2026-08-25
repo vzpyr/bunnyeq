@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Bunny EQ</string>
+    <string name="title_activity_main">Bunny EQ</string>
+    <string name="package_name">com.vzpyr.bunnyeq</string>
+    <string name="custom_url_scheme">com.vzpyr.bunnyeq</string>
+</resources>

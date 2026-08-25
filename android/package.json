@@ -1,0 +1,22 @@
+{
+  "name": "android",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "mkdir -p www && cp -r -L ../index.html ../style.css ../js ../assets www/ && cap sync && cd android && ./gradlew assembleDebug",
+    "format": "cd .. && npx prettier --write . --no-config"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/core": "^8.5.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.5.0"
+  }
+}

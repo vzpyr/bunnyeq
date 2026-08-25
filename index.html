@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Bunny EQ</title>
+    <script>
+      (function () {
+        const saved = localStorage.getItem("theme");
+        const systemDark =
+          window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches;
+        document.documentElement.setAttribute(
+          "data-theme",
+          saved || (systemDark ? "dark" : "light"),
+        );
+      })();
+    </script>
+    <link rel="icon" type="image/png" href="assets/favicon.png" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <svg
+        class="lucide lucide-headphones-icon lucide-headphones icon"
+        xmlns="http://www.w3.org/2000/svg"
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path
+          d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"
+        />
+      </svg>
+      <h1>Bunny EQ</h1>
+      <div class="status">
+        <span class="status-chip">
+          <span class="status-dot error" id="statusDot"></span>
+          <span id="statusText">Disconnected</span>
+        </span>
+        <span class="device-id" id="chipId">-</span>
+        <button class="btn accent sm" id="connectHeaderBtn">Connect</button>
+        <button class="decor-toggle" id="themeToggle" title="Toggle dark mode">
+          <svg
+            id="themeIconSun"
+            class="lucide lucide-sun-icon lucide-sun"
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            style="display: none"
+          >
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2" />
+            <path d="M12 20v2" />
+            <path d="m4.93 4.93 1.41 1.41" />
+            <path d="m17.66 17.66 1.41 1.41" />
+            <path d="M2 12h2" />
+            <path d="M20 12h2" />
+            <path d="m6.34 17.66-1.41 1.41" />
+            <path d="m19.07 4.93-1.41 1.41" />
+          </svg>
+          <svg
+            id="themeIconMoon"
+            class="lucide lucide-moon-icon lucide-moon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"
+            />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div id="disconnectOverlay" class="disconnect-overlay visible">
+      <div class="disconnect-card">
+        <svg
+          class="lucide lucide-unplug-icon lucide-unplug disconnect-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          width="40"
+          height="40"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="m19 5 3-3" />
+          <path d="m2 22 3-3" />
+          <path
+            d="M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4Z"
+          />
+          <path d="M7.5 13.5 10 11" />
+          <path d="M10.5 16.5 13 14" />
+          <path
+            d="m12 6 6 6 2.3-2.3a2.4 2.4 0 0 0 0-3.4l-2.6-2.6a2.4 2.4 0 0 0-3.4 0Z"
+          />
+        </svg>
+        <strong>Device Disconnected</strong>
+        <p id="disconnectMsg">
+          Connect your Tanchjim Bunny DSP and click Connect.
+        </p>
+        <button class="btn accent" id="retryBtn">
+          <svg
+            class="lucide lucide-plug-zap-icon lucide-plug-zap"
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4Z"
+            />
+            <path d="m2 22 3-3" />
+            <path d="M7.5 13.5 10 11" />
+            <path d="M10.5 16.5 13 14" />
+            <path d="m18 3-4 4h6l-4 4" />
+          </svg>
+          Connect Device
+        </button>
+      </div>
+    </div>
+
+    <div class="banner-bar"></div>
+
+    <div class="container offline" id="app">
+      <div id="notify" class="notify"></div>
+
+      <div class="toolbar">
+        <button id="readBtn" class="btn accent" disabled>
+          <svg
+            class="lucide lucide-rotate-ccw-icon lucide-rotate-ccw"
+            xmlns="http://www.w3.org/2000/svg"
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+          </svg>
+          Read
+        </button>
+        <button id="commitBtn" class="btn accent" disabled>
+          <svg
+            class="lucide lucide-check-icon lucide-check"
+            xmlns="http://www.w3.org/2000/svg"
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+          Commit
+        </button>
+        <button id="bypassBtn" class="btn" disabled>
+          <svg
+            class="lucide lucide-power-icon lucide-power"
+            xmlns="http://www.w3.org/2000/svg"
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 2v10" />
+            <path d="M18.4 6.6a9 9 0 1 1-12.77.04" />
+          </svg>
+          Disable EQ
+        </button>
+        <button id="exportBtn" class="btn" disabled>
+          <svg
+            class="lucide lucide-download-icon lucide-download"
+            xmlns="http://www.w3.org/2000/svg"
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 15V3" />
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <path d="m7 10 5 5 5-5" />
+          </svg>
+          Export
+        </button>
+        <button id="importBtn" class="btn" disabled>
+          <svg
+            class="lucide lucide-upload-icon lucide-upload"
+            xmlns="http://www.w3.org/2000/svg"
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 3v12" />
+            <path d="m17 8-5-5-5 5" />
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          </svg>
+          Import
+        </button>
+        <input type="file" id="importFile" accept=".json" hidden />
+        <button id="clearBtn" class="btn danger" disabled>Clear</button>
+      </div>
+
+      <div class="eq-canvas-wrap">
+        <canvas id="eqCanvas"></canvas>
+      </div>
+
+      <div class="volume-grid">
+        <div class="volume-row">
+          <label>L Vol</label>
+          <input
+            type="range"
+            id="leftVolSlider"
+            min="-60"
+            max="0"
+            value="0"
+            step="1"
+          />
+          <input
+            type="number"
+            id="leftVolInput"
+            value="0"
+            min="-60"
+            max="0"
+            step="1"
+          />
+          <span class="unit">dB</span>
+        </div>
+
+        <div class="volume-row">
+          <label>R Vol</label>
+          <input
+            type="range"
+            id="rightVolSlider"
+            min="-60"
+            max="0"
+            value="0"
+            step="1"
+          />
+          <input
+            type="number"
+            id="rightVolInput"
+            value="0"
+            min="-60"
+            max="0"
+            step="1"
+          />
+          <span class="unit">dB</span>
+        </div>
+
+        <div class="volume-row">
+          <label>Mic Gain</label>
+          <input
+            type="range"
+            id="micGainSlider"
+            min="-60"
+            max="12"
+            value="0"
+            step="1"
+          />
+          <input
+            type="number"
+            id="micGainInput"
+            value="0"
+            min="-60"
+            max="12"
+            step="1"
+          />
+          <span class="unit">dB</span>
+        </div>
+      </div>
+
+      <div id="bands"></div>
+    </div>
+
+    <button class="asano-toggle" id="asanoToggle" title="Toggle Asano">
+      <svg
+        class="lucide lucide-chevron-down-icon lucide-chevron-down"
+        xmlns="http://www.w3.org/2000/svg"
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m6 9 6 6 6-6" />
+      </svg>
+    </button>
+    <div class="corner-asano-wrap" id="asanoWrap">
+      <img class="corner-asano" src="assets/asano.png" alt="Asano" />
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

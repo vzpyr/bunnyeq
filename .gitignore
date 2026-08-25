@@ -1,0 +1,8 @@
+android/node_modules/
+android/www/
+android/android/.gradle/
+android/android/build/
+android/android/keystore.properties
+android/android/local.properties
+android/android/app/build/
+android/android/app/bunnyeq.jks
