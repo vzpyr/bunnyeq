@@ -431,11 +431,11 @@ async function handleRead(quiet = false) {
   try {
     const data = await readAll();
     bands = data.filters;
-    leftVol = data.left_vol;
-    rightVol = data.right_vol;
-    micGain = data.mic_gain;
+    leftVol = data.leftVol;
+    rightVol = data.rightVol;
+    micGain = data.micGain;
     eqEnabled = data.enabled;
-    chipIdEl.textContent = data.chip_id || "?";
+    chipIdEl.textContent = data.chipId || "?";
 
     updateUIFromState();
     hasChanges = false;

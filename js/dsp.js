@@ -32,8 +32,7 @@ export async function readAll() {
     throw new Error("No response from device");
   }
 
-  const slot = slotData[6];
-  const enabled = slot === CUSTOM_SLOT;
+  const enabled = slotData[6] === CUSTOM_SLOT;
 
   const filters = [];
   for (let i = 0; i < FILTER_COUNT; i++) {
@@ -86,14 +85,12 @@ export async function readAll() {
   const chipId = await transport.readChipId();
 
   return {
-    connected: true,
     enabled,
-    slot,
     filters,
-    left_vol: leftVol,
-    right_vol: rightVol,
-    mic_gain: micGain,
-    chip_id: chipId,
+    leftVol,
+    rightVol,
+    micGain,
+    chipId,
   };
 }
 
@@ -149,7 +146,6 @@ export async function toggleBypassDSP(targetSlot) {
   return {
     success: true,
     enabled: targetSlot === CUSTOM_SLOT,
-    slot: targetSlot,
     connected: reconnected,
   };
 }
