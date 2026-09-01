@@ -1,3 +1,4 @@
+.env
 android/node_modules/
 android/www/
 android/android/.gradle/
