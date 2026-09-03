@@ -48,7 +48,7 @@ Compiled APK lands in `android/android/app/build/outputs/apk/debug/`
 
 ### Web
 
-Allow the WebHID device prompt when clicking Connect. On Linux, create a udev rule so the browser can open the HID interface (WebHID uses hidraw), then reload and reapply the rules:
+Allow the WebHID device prompt when clicking Connect. On Linux, you might need udev rules so the browser can interact with the device. Run this command (and possibly replug the device) if it still doesn't connect:
 
 ```bash
 sudo tee /etc/udev/rules.d/99-bunny.rules <<'EOF'
@@ -57,7 +57,7 @@ EOF
 sudo udevadm control --reload-rules && sudo udevadm trigger --subsystem-match=hidraw
 ```
 
-Replug the device if the browser still can't connect after applying the rules. Flatpak and Snap browsers run sandboxed: connect the device before launching the browser and grant the app USB hardware access (Flatpak: `flatpak override --user --device=all org.chromium.Chromium`, then restart).
+Flatpak and Snap browsers might also require proper permissions: connect the device before launching the browser and grant the app USB hardware access (Flatpak: `flatpak override --user --device=all org.chromium.Chromium`, then restart).
 
 ### Android
 

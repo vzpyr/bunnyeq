@@ -143,10 +143,10 @@
           </summary>
           <div class="linux-hint-body">
             <p>
-              You probably need udev rules so the browser can open the HID
-              interface (WebHID uses hidraw). Replug the device if it still
-              can't connect. Flatpak and Snap browsers run sandboxed: connect
-              the device before launching, or grant the app USB access.
+              You might need udev rules so the browser can interact with the
+              device. Run this command (and possibly replug the device) if it
+              still doesn't connect. Flatpak/Snap browsers might also require
+              proper permissions.
             </p>
             <div class="linux-hint-code">
               <pre><code id="linuxHintCode">sudo tee /etc/udev/rules.d/99-bunny.rules &lt;&lt;'EOF'
