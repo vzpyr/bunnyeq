@@ -57,7 +57,7 @@ EOF
 sudo udevadm control --reload-rules && sudo udevadm trigger --subsystem-match=hidraw
 ```
 
-Flatpak and Snap browsers might also require proper permissions: connect the device before launching the browser and grant the app USB hardware access (Flatpak: `flatpak override --user --device=all org.chromium.Chromium`, then restart).
+Flatpak and Snap browsers might also require proper permissions.
 
 ### Android
 
