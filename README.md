@@ -57,7 +57,7 @@ EOF
 sudo udevadm control --reload-rules && sudo udevadm trigger --subsystem-match=hidraw
 ```
 
-Replug the device if the browser still can't connect after applying the rules.
+Replug the device if the browser still can't connect after applying the rules. Flatpak and Snap browsers run sandboxed: connect the device before launching the browser and grant the app USB hardware access (Flatpak: `flatpak override --user --device=all org.chromium.Chromium`, then restart).
 
 ### Android
 
