@@ -382,7 +382,7 @@ header .icon {
 }
 
 .linux-hint {
-  margin: 0 0 var(--space-lg);
+  margin-bottom: var(--space-lg);
   text-align: left;
   border: 1px solid var(--border);
   border-radius: var(--radius);
