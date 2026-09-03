@@ -33,6 +33,7 @@
   --font-base: 0.8rem;
   --font-md: 0.88rem;
   --font-lg: 1.05rem;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --radius: 8px;
   --radius-full: 9999px;
@@ -378,6 +379,76 @@ header .icon {
   color: var(--sub);
   margin-bottom: var(--space-xl);
   line-height: 1.4;
+}
+
+.linux-hint {
+  margin: 0 0 var(--space-lg);
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.linux-hint summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-base);
+  font-weight: 500;
+  user-select: none;
+}
+
+.linux-hint summary::-webkit-details-marker {
+  display: none;
+}
+
+.linux-hint summary:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--focus-ring);
+  border-radius: var(--radius);
+}
+
+.linux-hint summary svg {
+  color: var(--sub);
+  flex-shrink: 0;
+  transition: transform var(--transition);
+}
+
+.linux-hint[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.linux-hint-body {
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+  border-top: 1px solid var(--border);
+}
+
+.linux-hint-body p {
+  font-size: var(--font-sm);
+  color: var(--sub);
+  line-height: 1.4;
+  margin-bottom: var(--space-sm);
+}
+
+.linux-hint pre {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-md);
+  overflow-x: auto;
+  margin: 0;
+}
+
+.linux-hint code {
+  font-family: var(--font-mono);
+  font-size: var(--font-xs);
+  line-height: 1.5;
+  color: var(--text);
+  white-space: pre;
 }
 
 .notify {
