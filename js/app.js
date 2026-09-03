@@ -50,6 +50,8 @@ const themeIconSun = document.getElementById("themeIconSun");
 const themeIconMoon = document.getElementById("themeIconMoon");
 const asanoToggleBtn = document.getElementById("asanoToggle");
 const asanoWrap = document.getElementById("asanoWrap");
+const linuxHintCopyBtn = document.getElementById("linuxHintCopy");
+const linuxHintCode = document.getElementById("linuxHintCode");
 
 renderBands();
 setupEventListeners();
@@ -216,6 +218,7 @@ function setupEventListeners() {
 
   themeToggleBtn.addEventListener("click", toggleTheme);
   asanoToggleBtn.addEventListener("click", toggleAsano);
+  linuxHintCopyBtn.addEventListener("click", () => handleCopyLinuxHint());
 
   canvas.addEventListener("mousedown", onCanvasPointerDown);
   window.addEventListener("mousemove", onCanvasPointerMove);
@@ -588,6 +591,39 @@ function syncThemeIcons() {
 function toggleAsano() {
   asanoWrap.classList.toggle("hidden");
   asanoToggleBtn.classList.toggle("hidden");
+}
+
+async function copyText(value) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(value);
+    return;
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  textarea.remove();
+}
+
+async function handleCopyLinuxHint() {
+  const copyIcon =
+    '<path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /><rect width="14" height="14" x="8" y="8" rx="2" ry="2" />';
+  const checkIcon = '<path d="M20 6 9 17l-5-5" />';
+  try {
+    await copyText(linuxHintCode.textContent.trim() + "\n");
+    const icon = linuxHintCopyBtn.querySelector("svg");
+    icon.innerHTML = checkIcon;
+    linuxHintCopyBtn.classList.add("copied");
+    linuxHintCopyBtn.title = "Copied";
+    setTimeout(() => {
+      icon.innerHTML = copyIcon;
+      linuxHintCopyBtn.classList.remove("copied");
+      linuxHintCopyBtn.title = "Copy command";
+    }, 1500);
+  } catch (_) {}
 }
 
 function getPointerCanvasCoords(e) {

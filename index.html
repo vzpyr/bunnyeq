@@ -147,11 +147,35 @@
               interface (WebHID uses hidraw). Replug the device if it still
               can't connect.
             </p>
-            <pre><code>sudo tee /etc/udev/rules.d/99-bunny.rules &lt;&lt;'EOF'
+            <div class="linux-hint-code">
+              <pre><code id="linuxHintCode">sudo tee /etc/udev/rules.d/99-bunny.rules &lt;&lt;'EOF'
 SUBSYSTEM=="hidraw", ATTRS{idVendor}=="31b2", MODE="0666"
 EOF
-sudo udevadm control --reload-rules
-sudo udevadm trigger --subsystem-match=hidraw</code></pre>
+sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger --subsystem-match=hidraw</code></pre>
+              <button
+                class="copy-btn"
+                id="linuxHintCopy"
+                type="button"
+                title="Copy command"
+                aria-label="Copy command"
+              >
+                <svg
+                  class="lucide lucide-copy-icon lucide-copy"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                  <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                </svg>
+              </button>
+            </div>
           </div>
         </details>
         <button class="btn accent" id="retryBtn">

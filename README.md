@@ -54,8 +54,7 @@ Allow the WebHID device prompt when clicking Connect. On Linux, create a udev ru
 sudo tee /etc/udev/rules.d/99-bunny.rules <<'EOF'
 SUBSYSTEM=="hidraw", ATTRS{idVendor}=="31b2", MODE="0666"
 EOF
-sudo udevadm control --reload-rules
-sudo udevadm trigger --subsystem-match=hidraw
+sudo udevadm control --reload-rules && sudo udevadm trigger --subsystem-match=hidraw
 ```
 
 Replug the device if the browser still can't connect after applying the rules.
