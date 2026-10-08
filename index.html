@@ -25,7 +25,7 @@
   <body>
     <header>
       <svg
-        class="lucide lucide-headphones-icon lucide-headphones icon"
+        class="icon"
         xmlns="http://www.w3.org/2000/svg"
         width="22"
         height="22"
@@ -47,11 +47,9 @@
           <span id="statusText">Disconnected</span>
         </span>
         <span class="device-id" id="chipId">-</span>
-        <button class="btn accent sm" id="connectHeaderBtn">Connect</button>
         <button class="decor-toggle" id="themeToggle" title="Toggle dark mode">
           <svg
             id="themeIconSun"
-            class="lucide lucide-sun-icon lucide-sun"
             xmlns="http://www.w3.org/2000/svg"
             width="14"
             height="14"
@@ -75,7 +73,6 @@
           </svg>
           <svg
             id="themeIconMoon"
-            class="lucide lucide-moon-icon lucide-moon"
             xmlns="http://www.w3.org/2000/svg"
             width="14"
             height="14"
@@ -91,13 +88,14 @@
             />
           </svg>
         </button>
+        <button class="btn accent sm" id="connectHeaderBtn">Connect</button>
       </div>
     </header>
 
     <div id="disconnectOverlay" class="disconnect-overlay visible">
       <div class="disconnect-card">
         <svg
-          class="lucide lucide-unplug-icon lucide-unplug disconnect-icon"
+          class="disconnect-icon"
           xmlns="http://www.w3.org/2000/svg"
           width="40"
           height="40"
@@ -123,11 +121,15 @@
         <p id="disconnectMsg">
           Connect your Tanchjim Bunny DSP and click Connect.
         </p>
+        <div
+          id="disconnectError"
+          class="modal-error"
+          style="display: none"
+        ></div>
         <details class="linux-hint">
           <summary>
             <span>Using Linux?</span>
             <svg
-              class="lucide lucide-chevron-down-icon lucide-chevron-down"
               xmlns="http://www.w3.org/2000/svg"
               width="14"
               height="14"
@@ -161,7 +163,6 @@ sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger --subsystem-
                 aria-label="Copy command"
               >
                 <svg
-                  class="lucide lucide-copy-icon lucide-copy"
                   xmlns="http://www.w3.org/2000/svg"
                   width="12"
                   height="12"
@@ -183,7 +184,6 @@ sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger --subsystem-
         </details>
         <button class="btn accent" id="retryBtn">
           <svg
-            class="lucide lucide-plug-zap-icon lucide-plug-zap"
             xmlns="http://www.w3.org/2000/svg"
             width="14"
             height="14"
@@ -215,7 +215,6 @@ sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger --subsystem-
       <div class="toolbar">
         <button id="readBtn" class="btn accent" disabled>
           <svg
-            class="lucide lucide-rotate-ccw-icon lucide-rotate-ccw"
             xmlns="http://www.w3.org/2000/svg"
             width="13"
             height="13"
@@ -233,7 +232,6 @@ sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger --subsystem-
         </button>
         <button id="commitBtn" class="btn accent" disabled>
           <svg
-            class="lucide lucide-check-icon lucide-check"
             xmlns="http://www.w3.org/2000/svg"
             width="13"
             height="13"
@@ -250,7 +248,6 @@ sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger --subsystem-
         </button>
         <button id="bypassBtn" class="btn" disabled>
           <svg
-            class="lucide lucide-power-icon lucide-power"
             xmlns="http://www.w3.org/2000/svg"
             width="13"
             height="13"
@@ -268,7 +265,6 @@ sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger --subsystem-
         </button>
         <button id="exportBtn" class="btn" disabled>
           <svg
-            class="lucide lucide-download-icon lucide-download"
             xmlns="http://www.w3.org/2000/svg"
             width="13"
             height="13"
@@ -287,7 +283,6 @@ sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger --subsystem-
         </button>
         <button id="importBtn" class="btn" disabled>
           <svg
-            class="lucide lucide-upload-icon lucide-upload"
             xmlns="http://www.w3.org/2000/svg"
             width="13"
             height="13"
@@ -382,7 +377,6 @@ sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger --subsystem-
 
     <button class="asano-toggle" id="asanoToggle" title="Toggle Asano">
       <svg
-        class="lucide lucide-chevron-down-icon lucide-chevron-down"
         xmlns="http://www.w3.org/2000/svg"
         width="14"
         height="14"

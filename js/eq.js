@@ -1,43 +1,60 @@
-export const FREQ_POINTS = [
-  20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000,
-];
+import { CANVAS_CONFIG, FILTER_TYPE } from "./constants.js";
+
+const { FREQ_POINTS, DB_MIN, DB_MAX, STEP_COUNT } = CANVAS_CONFIG;
+const F_MIN = 20;
+const F_MAX = 20000;
 
 export function filterResponse(f, fc, gain, q, type) {
-  if (q <= 0.01) q = 0.1;
+  if (gain === 0 || !gain) return 0;
+  const qSafe = Math.max(0.1, q || 1.0);
   const A = Math.pow(10, gain / 40);
   const w0 = 2 * Math.PI * fc;
   const w = 2 * Math.PI * f;
+  const w0_sq = w0 * w0;
+  const w_sq = w * w;
+  const w0w = w0 * w;
 
-  if (type === "PK") {
-    const num = Math.pow(w0 * w0 - w * w, 2) + Math.pow((A / q) * w0 * w, 2);
-    const den =
-      Math.pow(w0 * w0 - w * w, 2) + Math.pow((1 / (A * q)) * w0 * w, 2);
+  if (type === FILTER_TYPE.PEAK || type === "PK") {
+    const diff_sq = Math.pow(w0_sq - w_sq, 2);
+    const num = diff_sq + Math.pow((A / qSafe) * w0w, 2);
+    const den = diff_sq + Math.pow((1 / (A * qSafe)) * w0w, 2);
     return 10 * Math.log10(Math.max(num / den, 1e-15));
   }
 
-  const w0w = w0 * w;
-  const w0_sq = w0 * w0;
-  const w_sq = w * w;
+  const sqrtA = Math.sqrt(A);
+  const crossTerm = Math.pow((sqrtA / qSafe) * w0w, 2);
 
-  if (type === "LSQ") {
-    const sqrtA = Math.sqrt(A);
-    const num_sq =
-      Math.pow(A * w0_sq - w_sq, 2) + Math.pow((sqrtA / q) * w0w, 2);
-    const den_sq =
-      Math.pow(w0_sq - A * w_sq, 2) + Math.pow((sqrtA / q) * w0w, 2);
+  if (type === FILTER_TYPE.LOW_SHELF || type === "LSQ") {
+    const num_sq = Math.pow(A * w0_sq - w_sq, 2) + crossTerm;
+    const den_sq = Math.pow(w0_sq - A * w_sq, 2) + crossTerm;
     return 10 * Math.log10(Math.max((A * A * num_sq) / den_sq, 1e-15));
   }
 
-  if (type === "HSQ") {
-    const sqrtA = Math.sqrt(A);
-    const num_sq =
-      Math.pow(w0_sq - A * w_sq, 2) + Math.pow((sqrtA / q) * w0w, 2);
-    const den_sq =
-      Math.pow(A * w0_sq - w_sq, 2) + Math.pow((sqrtA / q) * w0w, 2);
+  if (type === FILTER_TYPE.HIGH_SHELF || type === "HSQ") {
+    const num_sq = Math.pow(w0_sq - A * w_sq, 2) + crossTerm;
+    const den_sq = Math.pow(A * w0_sq - w_sq, 2) + crossTerm;
     return 10 * Math.log10(Math.max(num_sq / den_sq, 1e-15));
   }
 
   return 0;
+}
+
+export function freqToX(freq, width) {
+  return (Math.log(freq / F_MIN) / Math.log(F_MAX / F_MIN)) * width;
+}
+
+export function xToFreq(x, width) {
+  const ratio = Math.max(0, Math.min(1, x / width));
+  return Math.round(F_MIN * Math.pow(F_MAX / F_MIN, ratio));
+}
+
+export function dbToY(db, height) {
+  return height - ((db - DB_MIN) / (DB_MAX - DB_MIN)) * height;
+}
+
+export function yToDb(y, height) {
+  const raw = DB_MAX - (y / height) * (DB_MAX - DB_MIN);
+  return Math.round(raw * 10) / 10;
 }
 
 export function drawEQ(canvas, bands, eqEnabled) {
@@ -57,79 +74,66 @@ export function drawEQ(canvas, bands, eqEnabled) {
   ctx.clearRect(0, 0, W, H);
 
   const cs = getComputedStyle(document.documentElement);
-  const cGrid = cs.getPropertyValue("--canvas-grid").trim();
-  const cLabel = cs.getPropertyValue("--canvas-label").trim();
-  const cZero = cs.getPropertyValue("--canvas-zero").trim();
-  const cBand = cs.getPropertyValue("--canvas-band").trim();
-  const cCurve = cs.getPropertyValue("--canvas-curve").trim();
-  const cDot = cs.getPropertyValue("--canvas-dot").trim();
-  const cDotText = cs.getPropertyValue("--canvas-dot-text").trim();
-  const cEqOffBg = cs.getPropertyValue("--canvas-eq-off-bg").trim();
-  const cEqOffText = cs.getPropertyValue("--canvas-eq-off-text").trim();
-
-  const fMin = 20;
-  const fMax = 20000;
-  const dbMin = -15;
-  const dbMax = 15;
-
-  function freqToX(f) {
-    return (Math.log(f / fMin) / Math.log(fMax / fMin)) * W;
-  }
-
-  function dbToY(db) {
-    return H - ((db - dbMin) / (dbMax - dbMin)) * H;
-  }
+  const cGrid = cs.getPropertyValue("--canvas-grid").trim() || "#ddd";
+  const cLabel = cs.getPropertyValue("--canvas-label").trim() || "#888";
+  const cZero = cs.getPropertyValue("--canvas-zero").trim() || "#bbb";
+  const cBand =
+    cs.getPropertyValue("--canvas-band").trim() || "rgba(42,75,127,0.2)";
+  const cCurve = cs.getPropertyValue("--canvas-curve").trim() || "#d4a373";
+  const cDot = cs.getPropertyValue("--canvas-dot").trim() || "#d3dee8";
+  const cDotText = cs.getPropertyValue("--canvas-dot-text").trim() || "#2c2926";
+  const cEqOffBg =
+    cs.getPropertyValue("--canvas-eq-off-bg").trim() || "rgba(217,117,107,0.1)";
+  const cEqOffText =
+    cs.getPropertyValue("--canvas-eq-off-text").trim() || "#d9756b";
 
   ctx.strokeStyle = cGrid;
   ctx.lineWidth = 1;
+  ctx.font = '10px "League Spartan", sans-serif';
+
   for (let db = -12; db <= 12; db += 3) {
-    const y = dbToY(db);
+    const y = dbToY(db, H);
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(W, y);
     ctx.stroke();
     ctx.fillStyle = cLabel;
-    ctx.font = '10px "League Spartan", sans-serif';
-    ctx.fillText(db + " dB", 4, y - 3);
+    ctx.fillText(`${db} dB`, 4, y - 3);
   }
 
   for (const f of FREQ_POINTS) {
-    const x = freqToX(f);
+    const x = freqToX(f, W);
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, H);
     ctx.stroke();
     ctx.fillStyle = cLabel;
-    ctx.font = '10px "League Spartan", sans-serif';
     ctx.textAlign = "center";
-    ctx.fillText(f >= 1000 ? f / 1000 + "k" : f, x, H - 2);
+    ctx.fillText(f >= 1000 ? `${f / 1000}k` : `${f}`, x, H - 2);
     ctx.textAlign = "start";
   }
 
   ctx.strokeStyle = cZero;
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.moveTo(0, dbToY(0));
-  ctx.lineTo(W, dbToY(0));
+  ctx.moveTo(0, dbToY(0, H));
+  ctx.lineTo(W, dbToY(0, H));
   ctx.stroke();
 
-  const steps = 800;
+  const activeBands = bands.filter((b) => !b.disabled && b.gain !== 0);
 
-  for (let b = 0; b < bands.length; b++) {
-    const band = bands[b];
-    if (band.disabled || band.gain === 0) continue;
-
+  for (const band of activeBands) {
     ctx.beginPath();
-    let bfirst = true;
-    for (let i = 0; i <= steps; i++) {
-      const f = fMin * Math.pow(fMax / fMin, i / steps);
+    let isFirst = true;
+    for (let i = 0; i <= STEP_COUNT; i++) {
+      const f = F_MIN * Math.pow(F_MAX / F_MIN, i / STEP_COUNT);
       let db = filterResponse(f, band.freq, band.gain, band.q, band.type);
-      db = Math.max(dbMin, Math.min(dbMax, db));
-      const x = freqToX(f);
-      const y = dbToY(db);
-      if (bfirst) {
+      db = Math.max(DB_MIN, Math.min(DB_MAX, db));
+      const x = freqToX(f, W);
+      const y = dbToY(db, H);
+      if (isFirst) {
         ctx.moveTo(x, y);
-        bfirst = false;
+        isFirst = false;
       } else {
         ctx.lineTo(x, y);
       }
@@ -140,21 +144,19 @@ export function drawEQ(canvas, bands, eqEnabled) {
   }
 
   ctx.beginPath();
-  let first = true;
-  for (let i = 0; i <= steps; i++) {
-    const f = fMin * Math.pow(fMax / fMin, i / steps);
+  let isFirstTotal = true;
+  for (let i = 0; i <= STEP_COUNT; i++) {
+    const f = F_MIN * Math.pow(F_MAX / F_MIN, i / STEP_COUNT);
     let totalDb = 0;
-    for (let b = 0; b < bands.length; b++) {
-      const band = bands[b];
-      if (band.disabled || band.gain === 0) continue;
+    for (const band of activeBands) {
       totalDb += filterResponse(f, band.freq, band.gain, band.q, band.type);
     }
-    totalDb = Math.max(dbMin, Math.min(dbMax, totalDb));
-    const x = freqToX(f);
-    const y = dbToY(totalDb);
-    if (first) {
+    totalDb = Math.max(DB_MIN, Math.min(DB_MAX, totalDb));
+    const x = freqToX(f, W);
+    const y = dbToY(totalDb, H);
+    if (isFirstTotal) {
       ctx.moveTo(x, y);
-      first = false;
+      isFirstTotal = false;
     } else {
       ctx.lineTo(x, y);
     }
@@ -178,8 +180,8 @@ export function drawEQ(canvas, bands, eqEnabled) {
   for (let b = 0; b < bands.length; b++) {
     const band = bands[b];
     if (band.disabled || band.gain === 0) continue;
-    const x = freqToX(band.freq);
-    const y = dbToY(band.gain);
+    const x = freqToX(band.freq, W);
+    const y = dbToY(band.gain, H);
     dots.push({ x, y, band: b });
 
     ctx.beginPath();
@@ -189,7 +191,7 @@ export function drawEQ(canvas, bands, eqEnabled) {
     ctx.fillStyle = cDotText;
     ctx.font = 'bold 10px "League Spartan", sans-serif';
     ctx.textAlign = "center";
-    ctx.fillText(b + 1, x, y - 10);
+    ctx.fillText(String(b + 1), x, y - 10);
     ctx.textAlign = "start";
   }
 

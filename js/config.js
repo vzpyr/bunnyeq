@@ -1,91 +1,105 @@
-export const DEFAULT_FREQS = [100, 500, 1000, 5000, 10000];
+import { AUDIO_LIMITS, FILTER_TYPE } from "./constants.js";
+
+const clamp = (val, min, max) => Math.max(min, Math.min(max, val));
 
 export function createDefaultBands() {
-  return DEFAULT_FREQS.map((freq) => ({
-    type: "PK",
+  return AUDIO_LIMITS.DEFAULT_FREQS.map((freq) => ({
+    type: FILTER_TYPE.PEAK,
     freq,
     gain: 0,
-    q: 1.0,
+    q: AUDIO_LIMITS.Q.DEFAULT,
     disabled: false,
   }));
 }
 
+export function normalizeFilterType(rawType) {
+  if (!rawType) return FILTER_TYPE.PEAK;
+  const s = String(rawType).toLowerCase().replace(/[-_]/g, "");
+  if (s === "peak" || s === "pk") return FILTER_TYPE.PEAK;
+  if (s === "lowshelf" || s === "lsq") return FILTER_TYPE.LOW_SHELF;
+  if (s === "highshelf" || s === "hsq") return FILTER_TYPE.HIGH_SHELF;
+  return FILTER_TYPE.PEAK;
+}
+
 export function exportConfigJSON(state) {
-  const cfg = {
+  const config = {
     format: "bunnyeq-v1",
     leftVol: state.leftVol,
     rightVol: state.rightVol,
     micGain: state.micGain,
-    bands: state.bands.map((b) => ({
-      type: b.type,
-      freq: b.freq,
-      gain: b.gain,
-      q: b.q,
-      disabled: !!b.disabled,
+    bands: state.bands.map((band) => ({
+      type: band.type,
+      freq: band.freq,
+      gain: band.gain,
+      q: band.q,
+      disabled: Boolean(band.disabled),
     })),
   };
 
   const ts = new Date().toISOString().replace(/:/g, "-").replace(/\..+/, "");
-  const blob = new Blob([JSON.stringify(cfg, null, 2)], {
+  const filename = `bunnyeq-${ts}.json`;
+  const blob = new Blob([JSON.stringify(config, null, 2)], {
     type: "application/json",
   });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `bunnyeq-${ts}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
   URL.revokeObjectURL(url);
-  return `bunnyeq-${ts}.json`;
+  return filename;
 }
 
 export function parseConfigJSON(jsonString) {
-  let cfg;
+  let config;
   try {
-    cfg = JSON.parse(jsonString);
+    config = JSON.parse(jsonString);
   } catch (_) {
     throw new Error("Invalid JSON file");
   }
 
-  if (!cfg.format || !cfg.format.startsWith("bunnyeq-")) {
-    throw new Error('Not a Bunny EQ config file (missing "format")');
+  if (!config.format || !config.format.startsWith("bunnyeq-")) {
+    throw new Error('Not a Bunny EQ preset (missing "format")');
   }
-  if (!Array.isArray(cfg.bands)) {
-    throw new Error('Invalid config: missing "bands" array');
+  if (!Array.isArray(config.bands)) {
+    throw new Error('Invalid preset: missing "bands" array');
   }
 
-  const validTypes = ["PK", "LSQ", "HSQ"];
-  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const { FREQ, GAIN, Q, VOLUME, MIC_GAIN, FILTER_COUNT, DEFAULT_FREQS } =
+    AUDIO_LIMITS;
 
-  const leftVol = clamp(parseFloat(cfg.leftVol) || 0, -60, 0);
-  const rightVol = clamp(parseFloat(cfg.rightVol) || 0, -60, 0);
-  const micGain = clamp(parseFloat(cfg.micGain) || 0, -60, 12);
+  const leftVol = clamp(
+    parseFloat(config.leftVol) || 0,
+    VOLUME.MIN,
+    VOLUME.MAX,
+  );
+  const rightVol = clamp(
+    parseFloat(config.rightVol) || 0,
+    VOLUME.MIN,
+    VOLUME.MAX,
+  );
+  const micGain = clamp(
+    parseFloat(config.micGain) || 0,
+    MIC_GAIN.MIN,
+    MIC_GAIN.MAX,
+  );
 
   const bands = [];
-  for (let i = 0; i < 5; i++) {
-    if (i < cfg.bands.length) {
-      const b = cfg.bands[i] || {};
-      const type = validTypes.includes(b.type) ? b.type : "PK";
-      const freq = clamp(parseFloat(b.freq) || DEFAULT_FREQS[i], 20, 20000);
-      const gain = clamp(parseFloat(b.gain) || 0, -12, 12);
-      const q = clamp(parseFloat(b.q) || 1.0, 0.1, 10);
-      bands.push({
-        type,
-        freq,
-        gain,
-        q,
-        disabled: !!b.disabled,
-      });
-    } else {
-      bands.push({
-        type: "PK",
-        freq: DEFAULT_FREQS[i],
-        gain: 0,
-        q: 1.0,
-        disabled: false,
-      });
-    }
+  for (let i = 0; i < FILTER_COUNT; i++) {
+    const rawBand = config.bands[i] || {};
+    bands.push({
+      type: normalizeFilterType(rawBand.type),
+      freq: clamp(
+        parseFloat(rawBand.freq) || DEFAULT_FREQS[i],
+        FREQ.MIN,
+        FREQ.MAX,
+      ),
+      gain: clamp(parseFloat(rawBand.gain) || 0, GAIN.MIN, GAIN.MAX),
+      q: clamp(parseFloat(rawBand.q) || Q.DEFAULT, Q.MIN, Q.MAX),
+      disabled: Boolean(rawBand.disabled),
+    });
   }
 
   return { leftVol, rightVol, micGain, bands };
