@@ -57,7 +57,7 @@ export function yToDb(y, height) {
   return Math.round(raw * 10) / 10;
 }
 
-export function drawEQ(canvas, bands, eqEnabled) {
+export function drawEQ(canvas, bands, eqEnabled, overlay = {}) {
   if (!canvas) return [];
 
   const dpr = window.devicePixelRatio || 1;
@@ -165,6 +165,30 @@ export function drawEQ(canvas, bands, eqEnabled) {
   ctx.lineWidth = 2.5;
   ctx.stroke();
 
+  // Graphic mode: the curve the sliders ask for, dashed, under the fitted result.
+  if (overlay.target) {
+    const cTarget = cs.getPropertyValue("--canvas-target").trim() || "#888";
+    ctx.save();
+    ctx.setLineDash([5, 4]);
+    ctx.strokeStyle = cTarget;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    overlay.target.forEach(({ f, db }, i) => {
+      const x = freqToX(f, W);
+      const y = dbToY(Math.max(DB_MIN, Math.min(DB_MAX, db)), H);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.restore();
+    for (const { f, db } of overlay.knobs || []) {
+      ctx.beginPath();
+      ctx.arc(freqToX(f, W), dbToY(db, H), 3, 0, Math.PI * 2);
+      ctx.fillStyle = cTarget;
+      ctx.fill();
+    }
+  }
+
   if (!eqEnabled) {
     ctx.fillStyle = cEqOffBg;
     ctx.fillRect(0, 0, W, H);
@@ -177,6 +201,7 @@ export function drawEQ(canvas, bands, eqEnabled) {
   }
 
   const dots = [];
+  if (overlay.hideDots) return dots;
   for (let b = 0; b < bands.length; b++) {
     const band = bands[b];
     if (band.disabled || band.gain === 0) continue;

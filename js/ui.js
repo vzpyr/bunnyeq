@@ -4,6 +4,11 @@ import { drawEQ, xToFreq, yToDb } from "./eq.js";
 let notifyTimeout = null;
 let activeDrag = null;
 let cachedDots = [];
+let overlayProvider = () => ({});
+
+export function setOverlayProvider(fn) {
+  overlayProvider = fn;
+}
 
 export const elements = {
   bandsContainer: document.getElementById("bands"),
@@ -38,6 +43,7 @@ export const elements = {
   asanoWrap: document.getElementById("asanoWrap"),
   linuxHintCopy: document.getElementById("linuxHintCopy"),
   linuxHintCode: document.getElementById("linuxHintCode"),
+  saveState: document.getElementById("saveState"),
 };
 
 export function setDisconnectError(message) {
@@ -366,8 +372,8 @@ function updateBandInputs(bandIdx, freq, gain) {
   if (gainNum) gainNum.value = gain;
 }
 
-export function renderEqCanvas(bands, eqEnabled) {
-  cachedDots = drawEQ(elements.canvas, bands, eqEnabled);
+export function renderEqCanvas(bands, eqEnabled, overlay) {
+  cachedDots = drawEQ(elements.canvas, bands, eqEnabled, overlay);
   return cachedDots;
 }
 
@@ -398,7 +404,17 @@ export function syncUiFromState(state) {
 
   const powerIcon =
     '<svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg>';
-  elements.bypassBtn.innerHTML = `${powerIcon} ${state.eqEnabled ? "Disable EQ" : "Enable EQ"}`;
+  elements.bypassBtn.innerHTML = `${powerIcon} ${state.eqEnabled ? "EQ: On" : "EQ: Off"}`;
+  elements.bypassBtn.classList.toggle("off", !state.eqEnabled);
+  elements.bypassBtn.title =
+    "Compare your EQ with the IEM's own sound (not saved)";
+
+  elements.saveState.className = `save-state ${state.hasChanges ? "unsaved" : ""}`;
+  elements.saveState.textContent = !state.isConnected
+    ? ""
+    : state.hasChanges
+      ? "Playing live, not saved"
+      : "Saved on IEM";
 
   elements.leftVolSlider.value = state.leftVol;
   elements.leftVolInput.value = state.leftVol;
@@ -437,5 +453,5 @@ export function syncUiFromState(state) {
   }
 
   updateFrequencyRanges(state.bands);
-  renderEqCanvas(state.bands, state.eqEnabled);
+  renderEqCanvas(state.bands, state.eqEnabled, overlayProvider(state));
 }

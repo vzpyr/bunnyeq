@@ -228,7 +228,7 @@ sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger --subsystem-
             <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
             <path d="M3 3v5h5" />
           </svg>
-          Read
+          Reload
         </button>
         <button id="commitBtn" class="btn accent" disabled>
           <svg
@@ -244,7 +244,7 @@ sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger --subsystem-
           >
             <path d="M20 6 9 17l-5-5" />
           </svg>
-          Commit
+          Save to IEM
         </button>
         <button id="bypassBtn" class="btn" disabled>
           <svg
@@ -300,79 +300,144 @@ sudo udevadm control --reload-rules &amp;&amp; sudo udevadm trigger --subsystem-
           Import
         </button>
         <input type="file" id="importFile" accept=".json" hidden />
-        <button id="clearBtn" class="btn danger" disabled>Clear</button>
+        <button id="clearBtn" class="btn danger" disabled>Reset</button>
+        <span class="save-state" id="saveState"></span>
+      </div>
+
+      <details class="help" id="helpBox">
+        <summary>How this works</summary>
+        <ol>
+          <li>
+            <strong>Changes play live.</strong> Every slider move is sent to the
+            IEM straight away, so you hear it while you drag.
+          </li>
+          <li>
+            <strong>Save to IEM</strong> writes the settings into the IEM's
+            memory. Until you save, unplugging it goes back to the last saved
+            sound. Once saved, the tuning works on any phone or computer with no
+            app.
+          </li>
+          <li>
+            <strong>EQ On/Off</strong> switches between your EQ and the IEM's
+            untouched sound, for quick A/B comparison.
+          </li>
+          <li>
+            <strong>Graphic</strong> works like a classic music-app equaliser:
+            ten fixed sliders and presets. The IEM has five adjustable filters,
+            so the app fits them to your slider curve. The dashed line is what
+            you asked for, the solid line is what the IEM plays.
+          </li>
+          <li>
+            <strong>Preamp</strong> turns everything down so boosts don't
+            distort. With Auto on, it cuts exactly as much as your biggest
+            boost. Turn your device's volume up to make up the difference.
+          </li>
+          <li>
+            Turn off any other EQ while you tune (a music app's equaliser or
+            your phone's sound settings), or the two stack.
+          </li>
+        </ol>
+      </details>
+
+      <div class="mode-tabs" role="tablist">
+        <button class="mode-tab" role="tab" data-mode="graphic">Graphic</button>
+        <button class="mode-tab" role="tab" data-mode="parametric">
+          Parametric
+        </button>
       </div>
 
       <div class="eq-canvas-wrap">
         <canvas id="eqCanvas"></canvas>
       </div>
 
-      <div class="volume-grid">
-        <div class="volume-row">
-          <label>L Vol</label>
-          <input
-            type="range"
-            id="leftVolSlider"
-            min="-60"
-            max="0"
-            value="0"
-            step="1"
-          />
-          <input
-            type="number"
-            id="leftVolInput"
-            value="0"
-            min="-60"
-            max="0"
-            step="1"
-          />
-          <span class="unit">dB</span>
+      <section class="graphic-panel" id="graphicPanel">
+        <div class="graphic-head">
+          <select id="presetSelect" title="Preset"></select>
+          <button class="btn sm" id="savePresetBtn" type="button">
+            Save as preset…
+          </button>
+          <button class="btn sm" id="deletePresetBtn" type="button">
+            Delete preset
+          </button>
+          <label class="check">
+            <input type="checkbox" id="autoPreampToggle" />
+            Auto preamp
+          </label>
+          <span class="fit-info" id="fitInfo"></span>
+        </div>
+        <div class="graphic-rack" id="graphicRack"></div>
+        <p class="graphic-note" id="graphicNote"></p>
+      </section>
+
+      <section id="parametricPanel">
+        <div class="volume-grid">
+          <div class="volume-row">
+            <label>L Vol</label>
+            <input
+              type="range"
+              id="leftVolSlider"
+              min="-60"
+              max="0"
+              value="0"
+              step="1"
+            />
+            <input
+              type="number"
+              id="leftVolInput"
+              value="0"
+              min="-60"
+              max="0"
+              step="1"
+            />
+            <span class="unit">dB</span>
+          </div>
+
+          <div class="volume-row">
+            <label>R Vol</label>
+            <input
+              type="range"
+              id="rightVolSlider"
+              min="-60"
+              max="0"
+              value="0"
+              step="1"
+            />
+            <input
+              type="number"
+              id="rightVolInput"
+              value="0"
+              min="-60"
+              max="0"
+              step="1"
+            />
+            <span class="unit">dB</span>
+          </div>
+
+          <div class="volume-row">
+            <label>Mic Gain</label>
+            <input
+              type="range"
+              id="micGainSlider"
+              min="-60"
+              max="12"
+              value="0"
+              step="1"
+            />
+            <input
+              type="number"
+              id="micGainInput"
+              value="0"
+              min="-60"
+              max="12"
+              step="1"
+            />
+            <span class="unit">dB</span>
+          </div>
         </div>
 
-        <div class="volume-row">
-          <label>R Vol</label>
-          <input
-            type="range"
-            id="rightVolSlider"
-            min="-60"
-            max="0"
-            value="0"
-            step="1"
-          />
-          <input
-            type="number"
-            id="rightVolInput"
-            value="0"
-            min="-60"
-            max="0"
-            step="1"
-          />
-          <span class="unit">dB</span>
-        </div>
-
-        <div class="volume-row">
-          <label>Mic Gain</label>
-          <input
-            type="range"
-            id="micGainSlider"
-            min="-60"
-            max="12"
-            value="0"
-            step="1"
-          />
-          <input
-            type="number"
-            id="micGainInput"
-            value="0"
-            min="-60"
-            max="12"
-            step="1"
-          />
-          <span class="unit">dB</span>
-        </div>
-      </div>
-
-      <div id="bands"></div>
+        <p class="graphic-note" id="preampHint"></p>
+        <div id="bands"></div>
+      </section>
     </div>
 
     <button class="asano-toggle" id="asanoToggle" title="Toggle Asano">

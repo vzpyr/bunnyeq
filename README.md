@@ -9,7 +9,11 @@ Lightweight web and Android EQ controller for the Tanchjim Bunny DSP
 
 ## Features
 
+- Graphic EQ: ten fixed sliders (32 Hz to 16 kHz), preamp and presets, like a classic music-app equaliser. The five hardware filters are fitted to the slider curve automatically
 - 5-band parametric EQ (supports Peak, Low Shelf, and High Shelf filters with draggable response curve)
+- Live preview: changes are written to the DSP's working registers as you make them; "Save to IEM" writes them to flash
+- EQ on/off A/B switch that does not write to flash
+- Auto preamp that cuts by the curve's highest boost to avoid clipping
 - Global EQ and per-band toggles
 - Per-side volume (-60 dB to 0 dB) and microphone gain (-60 dB to +12 dB)
 - JSON presets for quick importing/exporting
